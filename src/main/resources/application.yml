@@ -22,10 +22,39 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
 server:
   port: 8080
 
 app:
   jwt:
-    secret: ${JWT_SECRET:menko-agro-secret-key-change-in-production-min-256-bits}
-    expiration-ms: 86400000
+    secret: ${JWT_SECRET:menko-agro-secret-key-change-in-production-must-be-at-least-256bits!!}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  pdf:
+    directory: ${PDF_DIRECTORY:./receipts}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+    display-request-duration: true
+  info:
+    title: Menko Agro API
+    description: API de gestion de l'entreprise agricole Menko Agro
+    version: 1.0.0
+
+logging:
+  level:
+    root: INFO
+    com.menkoagro.api: DEBUG
+    org.hibernate.SQL: WARN
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

@@ -7,4 +7,8 @@ public class ResourceNotFoundException extends BusinessException {
     public ResourceNotFoundException(String resource, Object id) {
         super(resource + " introuvable avec l'id : " + id, HttpStatus.NOT_FOUND);
     }
+
+    public ResourceNotFoundException(String message) {
+        super(message, HttpStatus.NOT_FOUND);
+    }
 }
