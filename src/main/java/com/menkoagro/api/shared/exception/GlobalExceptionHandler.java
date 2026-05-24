@@ -6,6 +6,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,6 +41,18 @@ public class GlobalExceptionHandler {
         String message = "Paramètre invalide : '" + ex.getName() + "' — valeur attendue de type " +
                 (ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "inconnu");
         return ResponseEntity.badRequest().body(ApiResponse.error(message));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        String message = "Méthode HTTP '" + ex.getMethod() + "' non supportée pour cet endpoint";
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(ApiResponse.error(message));
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                .body(ApiResponse.error("Content-Type '" + ex.getContentType() + "' non supporté — utilisez application/json"));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
