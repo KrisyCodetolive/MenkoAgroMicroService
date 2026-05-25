@@ -1,6 +1,7 @@
 package com.menkoagro.api.modules.stock.presentation.controller;
 
 import com.menkoagro.api.modules.stock.application.dto.AjustementStockRequest;
+import com.menkoagro.api.modules.stock.application.dto.AlertePeremptionDto;
 import com.menkoagro.api.modules.stock.application.dto.MouvementStockDto;
 import com.menkoagro.api.modules.stock.application.dto.StockDto;
 import com.menkoagro.api.modules.stock.application.service.StockService;
@@ -48,6 +49,19 @@ public class StockController {
     })
     public ResponseEntity<ApiResponse<List<StockDto>>> getAll() {
         return ResponseEntity.ok(ApiResponse.ok(stockService.getAll()));
+    }
+
+    @GetMapping("/peremption")
+    @PreAuthorize("hasAuthority('STOCK_VOIR')")
+    @Operation(summary = "Alertes de péremption",
+            description = "Retourne les produits périssables en stock avec leur date d'expiration estimée et les jours restants")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Liste des alertes de péremption"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Non authentifié"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Autorisation STOCK_VOIR requise")
+    })
+    public ResponseEntity<ApiResponse<List<AlertePeremptionDto>>> getAlertesPeremption() {
+        return ResponseEntity.ok(ApiResponse.ok(stockService.getAlertesPeremption()));
     }
 
     @GetMapping("/alertes")

@@ -2,6 +2,7 @@ package com.menkoagro.api.modules.product.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -35,6 +36,13 @@ public class ProduitRequest {
     @Schema(description = "Identifiant de la catégorie", example = "990e8400-e29b-41d4-a716-446655440004",
             requiredMode = Schema.RequiredMode.REQUIRED)
     private UUID categorieId;
+
+    @Schema(description = "true si le produit est périssable (gombo, tomate, poulet...)", example = "true")
+    private boolean estPerissable = false;
+
+    @Min(value = 1, message = "La durée de conservation doit être d'au moins 1 jour")
+    @Schema(description = "Durée de conservation en jours après entrée en stock (obligatoire si périssable)", example = "3")
+    private Integer dureeConservationJours;
 
     @Valid
     @Schema(description = "Conditionnements initiaux à créer avec le produit (optionnel)")

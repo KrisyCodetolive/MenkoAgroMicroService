@@ -25,12 +25,19 @@ public class Produit {
     @Column(nullable = false, length = 150)
     private String nom;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT" , nullable = true)
     private String description;
 
     @Column(name = "unite_base", nullable = false, length = 50)
     @Builder.Default
     private String uniteBase = "pièce";
+
+    @Column(name = "est_perissable", nullable = false)
+    @Builder.Default
+    private boolean estPerissable = false;
+
+    @Column(name = "duree_conservation_jours")
+    private Integer dureeConservationJours;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categorie_produit_id", nullable = false)

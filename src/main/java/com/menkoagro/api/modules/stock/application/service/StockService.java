@@ -2,6 +2,7 @@ package com.menkoagro.api.modules.stock.application.service;
 
 import com.menkoagro.api.modules.product.domain.entity.Produit;
 import com.menkoagro.api.modules.stock.application.dto.AjustementStockRequest;
+import com.menkoagro.api.modules.stock.application.dto.AlertePeremptionDto;
 import com.menkoagro.api.modules.stock.application.dto.MouvementStockDto;
 import com.menkoagro.api.modules.stock.application.dto.StockDto;
 import com.menkoagro.api.modules.stock.domain.entity.MotifMouvement;
@@ -18,7 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -52,6 +56,37 @@ public class StockService {
     public List<StockDto> getStocksEnAlerte() {
         return stockRepository.findStocksEnAlerte().stream()
                 .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<AlertePeremptionDto> getAlertesPeremption() {
+        return stockRepository.findStocksPerissables().stream()
+                .map(stock -> {
+                    Optional<MouvementStock> dernierEntree = mouvementStockRepository
+                            .findFirstByStockIdAndTypeOrderByDateDesc(stock.getId(), TypeMouvement.ENTREE);
+
+                    LocalDate dernierEntreeDate = dernierEntree
+                            .map(m -> m.getDate().toLocalDate())
+                            .orElse(stock.getUpdatedAt().toLocalDate());
+
+                    LocalDate dateExpiration = dernierEntreeDate
+                            .plusDays(stock.getProduit().getDureeConservationJours());
+                    long joursRestants = ChronoUnit.DAYS.between(LocalDate.now(), dateExpiration);
+
+                    return AlertePeremptionDto.builder()
+                            .stockId(stock.getId())
+                            .produitId(stock.getProduit().getId())
+                            .nomProduit(stock.getProduit().getNom())
+                            .quantite(stock.getQuantite())
+                            .uniteBase(stock.getProduit().getUniteBase())
+                            .dureeConservationJours(stock.getProduit().getDureeConservationJours())
+                            .dernierEntreeDate(dernierEntreeDate)
+                            .dateExpirationEstimee(dateExpiration)
+                            .joursRestants(joursRestants)
+                            .estExpire(joursRestants < 0)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 

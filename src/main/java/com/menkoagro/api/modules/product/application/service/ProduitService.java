@@ -61,6 +61,8 @@ public class ProduitService {
                 .description(request.getDescription())
                 .uniteBase(request.getUniteBase())
                 .categorie(categorie)
+                .estPerissable(request.isEstPerissable())
+                .dureeConservationJours(request.getDureeConservationJours())
                 .build();
 
         if (request.getConditionnements() != null && !request.getConditionnements().isEmpty()) {
@@ -98,6 +100,8 @@ public class ProduitService {
         produit.setDescription(request.getDescription());
         produit.setUniteBase(request.getUniteBase());
         produit.setCategorie(categorie);
+        produit.setEstPerissable(request.isEstPerissable());
+        produit.setDureeConservationJours(request.getDureeConservationJours());
 
         return toDto(produitRepository.save(produit));
     }
@@ -215,6 +219,8 @@ public class ProduitService {
                 .nomCategorie(produit.getCategorie().getNom())
                 .typeCategorie(produit.getCategorie().getTypeCategorie().getNom())
                 .conditionnements(conditionnements)
+                .estPerissable(produit.isEstPerissable())
+                .dureeConservationJours(produit.getDureeConservationJours())
                 .createdAt(produit.getCreatedAt())
                 .updatedAt(produit.getUpdatedAt())
                 .build();

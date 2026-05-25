@@ -34,6 +34,12 @@ public class ProduitDto {
     @Schema(description = "Type de catégorie parent", example = "ELEVAGE")
     private String typeCategorie;
 
+    @Schema(description = "true si le produit est périssable", example = "true")
+    private boolean estPerissable;
+
+    @Schema(description = "Durée de conservation en jours après entrée en stock (null si non périssable)", example = "3")
+    private Integer dureeConservationJours;
+
     @Schema(description = "Liste des conditionnements disponibles pour ce produit")
     private List<ConditionnementDto> conditionnements;
 

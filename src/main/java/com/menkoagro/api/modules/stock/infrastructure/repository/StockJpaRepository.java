@@ -17,7 +17,9 @@ public interface StockJpaRepository extends JpaRepository<Stock, UUID>, StockRep
 
     boolean existsByProduitId(UUID produitId);
 
-    // Comparaison de deux colonnes : requiert JPQL
     @Query("SELECT s FROM Stock s WHERE s.quantite <= s.seuilAlerte")
     List<Stock> findStocksEnAlerte();
+
+    @Query("SELECT s FROM Stock s WHERE s.produit.estPerissable = true AND s.quantite > 0")
+    List<Stock> findStocksPerissables();
 }

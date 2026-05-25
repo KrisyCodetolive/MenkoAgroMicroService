@@ -16,6 +16,8 @@ public interface StockRepository {
 
     List<Stock> findStocksEnAlerte();
 
+    List<Stock> findStocksPerissables();
+
     Stock save(Stock stock);
 
     boolean existsByProduitId(UUID produitId);
