@@ -4,7 +4,6 @@ import com.menkoagro.api.modules.product.domain.entity.Produit;
 import com.menkoagro.api.modules.product.domain.repository.ProduitRepository;
 import com.menkoagro.api.modules.production.application.dto.CloturerProductionRequest;
 import com.menkoagro.api.modules.production.application.dto.CoutProductionDto;
-import com.menkoagro.api.modules.production.application.dto.CoutProductionRequest;
 import com.menkoagro.api.modules.production.application.dto.ElevageBandeRequest;
 import com.menkoagro.api.modules.production.application.dto.EtapeProductionDto;
 import com.menkoagro.api.modules.production.application.dto.ProductionAgricoleRequest;
@@ -15,7 +14,6 @@ import com.menkoagro.api.modules.production.domain.entity.EtapeProduction;
 import com.menkoagro.api.modules.production.domain.entity.Production;
 import com.menkoagro.api.modules.production.domain.entity.ProductionAgricole;
 import com.menkoagro.api.modules.production.domain.entity.StatutProduction;
-import com.menkoagro.api.modules.production.domain.repository.CoutProductionRepository;
 import com.menkoagro.api.modules.production.domain.repository.ProductionRepository;
 import com.menkoagro.api.modules.stock.application.service.StockService;
 import com.menkoagro.api.modules.stock.domain.entity.MotifMouvement;
@@ -37,7 +35,6 @@ import java.util.stream.Collectors;
 public class ProductionService {
 
     private final ProductionRepository productionRepository;
-    private final CoutProductionRepository coutProductionRepository;
     private final ProduitRepository produitRepository;
     private final StockService stockService;
 
@@ -145,36 +142,6 @@ public class ProductionService {
         production.setDateFin(LocalDate.now());
 
         return toDto(productionRepository.save(production));
-    }
-
-    // ─── Coûts ───────────────────────────────────────────────────────────────────
-
-    @Transactional
-    public CoutProductionDto addCout(UUID productionId, CoutProductionRequest request) {
-        Production production = findProductionById(productionId);
-
-        CoutProduction cout = CoutProduction.builder()
-                .production(production)
-                .categorie(request.getCategorie())
-                .libelle(request.getLibelle())
-                .montant(request.getMontant())
-                .date(request.getDate())
-                .build();
-
-        // Sauvegarde directe pour récupérer l'UUID généré
-        CoutProduction saved = coutProductionRepository.save(cout);
-        return toCoutDto(saved);
-    }
-
-    @Transactional
-    public void deleteCout(UUID productionId, UUID coutId) {
-        findProductionById(productionId);
-        CoutProduction cout = coutProductionRepository.findById(coutId)
-                .orElseThrow(() -> new ResourceNotFoundException("Coût", coutId));
-        if (!cout.getProduction().getId().equals(productionId)) {
-            throw new BusinessException("Ce coût n'appartient pas à cette production");
-        }
-        coutProductionRepository.deleteById(coutId);
     }
 
     // ─── Helpers privés ──────────────────────────────────────────────────────────

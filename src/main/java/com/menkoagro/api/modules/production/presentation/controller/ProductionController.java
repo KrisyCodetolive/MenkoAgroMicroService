@@ -1,6 +1,7 @@
 package com.menkoagro.api.modules.production.presentation.controller;
 
 import com.menkoagro.api.modules.production.application.dto.CloturerProductionRequest;
+import com.menkoagro.api.modules.production.application.dto.CategorieCoutDto;
 import com.menkoagro.api.modules.production.application.dto.CoutProductionDto;
 import com.menkoagro.api.modules.production.application.dto.CoutProductionRequest;
 import com.menkoagro.api.modules.production.application.dto.ElevageBandeRequest;
@@ -8,6 +9,7 @@ import com.menkoagro.api.modules.production.application.dto.EtapeProductionDto;
 import com.menkoagro.api.modules.production.application.dto.EtapeProductionRequest;
 import com.menkoagro.api.modules.production.application.dto.ProductionAgricoleRequest;
 import com.menkoagro.api.modules.production.application.dto.ProductionDto;
+import com.menkoagro.api.modules.production.application.service.CoutProductionService;
 import com.menkoagro.api.modules.production.application.service.EtapeProductionService;
 import com.menkoagro.api.modules.production.application.service.ProductionService;
 import com.menkoagro.api.modules.production.domain.entity.StatutProduction;
@@ -46,6 +48,7 @@ public class ProductionController {
 
     private final ProductionService productionService;
     private final EtapeProductionService etapeProductionService;
+    private final CoutProductionService coutProductionService;
 
     @GetMapping
     @PreAuthorize("hasAuthority('PRODUCTION_VOIR')")
@@ -221,10 +224,34 @@ public class ProductionController {
 
     // ─── Coûts ───────────────────────────────────────────────────────────────────
 
+    @GetMapping("/couts/categories")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Lister les catégories de coût disponibles",
+            description = "Retourne la liste des catégories utilisables dans un select (code + libellé)")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Liste des catégories"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Non authentifié")
+    })
+    public ResponseEntity<ApiResponse<List<CategorieCoutDto>>> getCategoriesCout() {
+        return ResponseEntity.ok(ApiResponse.ok(coutProductionService.getCategoriesCout()));
+    }
+
+    @GetMapping("/{id}/couts")
+    @PreAuthorize("hasAuthority('PRODUCTION_VOIR')")
+    @Operation(summary = "Lister les coûts d'une production")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Liste des coûts"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Non authentifié"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Autorisation PRODUCTION_VOIR requise"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Production introuvable")
+    })
+    public ResponseEntity<ApiResponse<List<CoutProductionDto>>> getCouts(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.ok(coutProductionService.getCouts(id)));
+    }
+
     @PostMapping("/{id}/couts")
     @PreAuthorize("hasAuthority('COUT_ENREGISTRER')")
-    @Operation(summary = "Enregistrer un coût de production",
-            description = "Catégories : INTRANTS, MAIN_OEUVRE, TRANSPORT, VETERINAIRE, ALIMENTATION, AUTRE")
+    @Operation(summary = "Enregistrer un coût de production")
     @io.swagger.v3.oas.annotations.responses.ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Coût enregistré",
                     content = @Content(schema = @Schema(implementation = CoutProductionDto.class))),
@@ -236,8 +263,8 @@ public class ProductionController {
     public ResponseEntity<ApiResponse<CoutProductionDto>> addCout(
             @PathVariable UUID id,
             @Valid @RequestBody CoutProductionRequest request) {
-        CoutProductionDto dto = productionService.addCout(id, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Coût enregistré", dto));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("Coût enregistré", coutProductionService.addCout(id, request)));
     }
 
     @DeleteMapping("/{id}/couts/{coutId}")
@@ -252,7 +279,7 @@ public class ProductionController {
     public ResponseEntity<ApiResponse<Void>> deleteCout(
             @PathVariable UUID id,
             @PathVariable UUID coutId) {
-        productionService.deleteCout(id, coutId);
+        coutProductionService.deleteCout(id, coutId);
         return ResponseEntity.ok(ApiResponse.ok("Coût supprimé", null));
     }
 }
