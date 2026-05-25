@@ -13,4 +13,16 @@ public interface CategorieProduitRepository {
     List<CategorieProduit> findAll();
 
     List<CategorieProduit> findByTypeCategorieId(UUID typeCategorieId);
+
+    CategorieProduit save(CategorieProduit categorieProduit);
+
+    void deleteById(UUID id);
+
+    boolean existsById(UUID id);
+
+    boolean existsByNomAndTypeCategorieId(String nom, UUID typeCategorieId);
+
+    boolean existsByNomAndTypeCategorieIdAndIdNot(String nom, UUID typeCategorieId, UUID id);
+
+    boolean existsByTypeCategorieId(UUID typeCategorieId);
 }

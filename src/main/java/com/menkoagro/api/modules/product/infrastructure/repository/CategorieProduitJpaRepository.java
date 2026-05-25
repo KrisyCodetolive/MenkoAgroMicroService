@@ -12,4 +12,10 @@ import java.util.UUID;
 public interface CategorieProduitJpaRepository extends JpaRepository<CategorieProduit, UUID>, CategorieProduitRepository {
 
     List<CategorieProduit> findByTypeCategorieId(UUID typeCategorieId);
+
+    boolean existsByNomAndTypeCategorieId(String nom, UUID typeCategorieId);
+
+    boolean existsByNomAndTypeCategorieIdAndIdNot(String nom, UUID typeCategorieId, UUID id);
+
+    boolean existsByTypeCategorieId(UUID typeCategorieId);
 }

@@ -144,7 +144,7 @@ public class VenteService {
 
             // qteDeduitStock = quantite_commandée × quantiteBase du conditionnement
             BigDecimal qteDeduit = lr.getQuantite()
-                    .multiply(new BigDecimal(cond.getQuantiteBase()));
+                    .multiply(cond.getQuantiteBase());
             BigDecimal sousTotal = lr.getQuantite().multiply(cond.getPrixVente());
 
             lignes.add(LigneVente.builder()

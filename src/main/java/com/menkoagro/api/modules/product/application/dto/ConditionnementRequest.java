@@ -2,7 +2,6 @@ package com.menkoagro.api.modules.product.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -20,10 +19,10 @@ public class ConditionnementRequest {
     private String libelle;
 
     @NotNull(message = "La quantité de base est obligatoire")
-    @Min(value = 1, message = "La quantité de base doit être au moins 1")
-    @Schema(description = "Quantité en unité de base contenue dans ce conditionnement", example = "50",
+    @DecimalMin(value = "0.001", message = "La quantité de base doit être supérieure à 0")
+    @Schema(description = "Quantité en unité de base contenue dans ce conditionnement", example = "1.500",
             requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer quantiteBase;
+    private BigDecimal quantiteBase;
 
     @NotNull(message = "Le prix de vente est obligatoire")
     @DecimalMin(value = "0", inclusive = true, message = "Le prix de vente ne peut pas être négatif")

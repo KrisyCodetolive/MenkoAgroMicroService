@@ -11,4 +11,14 @@ public interface TypeCategorieRepository {
     Optional<TypeCategorie> findById(UUID id);
 
     List<TypeCategorie> findAll();
+
+    TypeCategorie save(TypeCategorie typeCategorie);
+
+    void deleteById(UUID id);
+
+    boolean existsById(UUID id);
+
+    boolean existsByNom(String nom);
+
+    boolean existsByNomAndIdNot(String nom, UUID id);
 }

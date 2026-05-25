@@ -9,4 +9,8 @@ import java.util.UUID;
 
 @Repository
 public interface TypeCategorieJpaRepository extends JpaRepository<TypeCategorie, UUID>, TypeCategorieRepository {
+
+    boolean existsByNom(String nom);
+
+    boolean existsByNomAndIdNot(String nom, UUID id);
 }

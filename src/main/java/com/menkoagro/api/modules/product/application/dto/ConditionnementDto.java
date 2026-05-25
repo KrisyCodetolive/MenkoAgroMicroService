@@ -18,8 +18,8 @@ public class ConditionnementDto {
     @Schema(description = "Libellé du conditionnement", example = "Sac 50kg")
     private String libelle;
 
-    @Schema(description = "Quantité exprimée en unité de base (ex: 50 pour un sac de 50kg)", example = "50")
-    private Integer quantiteBase;
+    @Schema(description = "Quantité exprimée en unité de base (ex: 50 pour un sac de 50kg)", example = "50.000")
+    private BigDecimal quantiteBase;
 
     @Schema(description = "Prix de vente de ce conditionnement en FCFA", example = "15000.00")
     private BigDecimal prixVente;
