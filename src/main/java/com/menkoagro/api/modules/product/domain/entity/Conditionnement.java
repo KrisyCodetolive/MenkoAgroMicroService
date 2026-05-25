@@ -27,9 +27,9 @@ public class Conditionnement {
     @Column(nullable = false, length = 100)
     private String libelle;
 
-    @Column(name = "quantite_base", nullable = false)
+    @Column(name = "quantite_base", nullable = false, precision = 10, scale = 3)
     @Builder.Default
-    private Integer quantiteBase = 1;
+    private BigDecimal quantiteBase = BigDecimal.ONE;
 
     @Column(name = "prix_vente", nullable = false, precision = 15, scale = 2)
     private BigDecimal prixVente;
