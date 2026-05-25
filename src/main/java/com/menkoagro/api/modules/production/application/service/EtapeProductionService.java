@@ -2,9 +2,11 @@ package com.menkoagro.api.modules.production.application.service;
 
 import com.menkoagro.api.modules.production.application.dto.EtapeProductionDto;
 import com.menkoagro.api.modules.production.application.dto.EtapeProductionRequest;
+import com.menkoagro.api.modules.production.application.dto.TypeEtapeDto;
 import com.menkoagro.api.modules.production.domain.entity.EtapeProduction;
 import com.menkoagro.api.modules.production.domain.entity.Production;
 import com.menkoagro.api.modules.production.domain.entity.ProductionAgricole;
+import com.menkoagro.api.modules.production.domain.entity.TypeEtape;
 import com.menkoagro.api.modules.production.domain.repository.EtapeProductionRepository;
 import com.menkoagro.api.modules.production.domain.repository.ProductionRepository;
 import com.menkoagro.api.shared.exception.BusinessException;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,6 +26,15 @@ public class EtapeProductionService {
 
     private final EtapeProductionRepository etapeProductionRepository;
     private final ProductionRepository productionRepository;
+
+    public List<TypeEtapeDto> getTypesEtape() {
+        return Arrays.stream(TypeEtape.values())
+                .map(t -> TypeEtapeDto.builder()
+                        .code(t.name())
+                        .libelle(toLibelle(t))
+                        .build())
+                .collect(Collectors.toList());
+    }
 
     @Transactional(readOnly = true)
     public List<EtapeProductionDto> getEtapes(UUID productionId) {
@@ -85,6 +97,15 @@ public class EtapeProductionService {
             throw new BusinessException("Les étapes ne s'appliquent qu'aux productions agricoles");
         }
         return agricole;
+    }
+
+    private String toLibelle(TypeEtape type) {
+        return switch (type) {
+            case PREPARATION_SOL -> "Préparation du sol";
+            case PLANTATION -> "Plantation";
+            case ENTRETIEN -> "Entretien";
+            case RECOLTE -> "Récolte";
+        };
     }
 
     private EtapeProductionDto toDto(EtapeProduction e) {

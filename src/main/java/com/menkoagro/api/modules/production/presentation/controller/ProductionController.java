@@ -4,6 +4,7 @@ import com.menkoagro.api.modules.production.application.dto.CloturerProductionRe
 import com.menkoagro.api.modules.production.application.dto.CategorieCoutDto;
 import com.menkoagro.api.modules.production.application.dto.CoutProductionDto;
 import com.menkoagro.api.modules.production.application.dto.CoutProductionRequest;
+import com.menkoagro.api.modules.production.application.dto.TypeEtapeDto;
 import com.menkoagro.api.modules.production.application.dto.ElevageBandeRequest;
 import com.menkoagro.api.modules.production.application.dto.EtapeProductionDto;
 import com.menkoagro.api.modules.production.application.dto.EtapeProductionRequest;
@@ -154,6 +155,18 @@ public class ProductionController {
     }
 
     // ─── Étapes ──────────────────────────────────────────────────────────────────
+
+    @GetMapping("/etapes/types")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Lister les types d'étape disponibles",
+            description = "Retourne la liste des types utilisables dans un select (code + libellé)")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Liste des types d'étape"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Non authentifié")
+    })
+    public ResponseEntity<ApiResponse<List<TypeEtapeDto>>> getTypesEtape() {
+        return ResponseEntity.ok(ApiResponse.ok(etapeProductionService.getTypesEtape()));
+    }
 
     @GetMapping("/{id}/etapes")
     @PreAuthorize("hasAuthority('PRODUCTION_VOIR')")
