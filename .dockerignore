@@ -1,0 +1,7 @@
+target/
+.git/
+.gitignore
+*.md
+*.docx
+supabase/
+.mvn/wrapper/maven-wrapper.jar
