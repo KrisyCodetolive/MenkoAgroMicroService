@@ -8,6 +8,7 @@ import com.menkoagro.api.modules.production.application.dto.EtapeProductionDto;
 import com.menkoagro.api.modules.production.application.dto.EtapeProductionRequest;
 import com.menkoagro.api.modules.production.application.dto.ProductionAgricoleRequest;
 import com.menkoagro.api.modules.production.application.dto.ProductionDto;
+import com.menkoagro.api.modules.production.application.service.EtapeProductionService;
 import com.menkoagro.api.modules.production.application.service.ProductionService;
 import com.menkoagro.api.modules.production.domain.entity.StatutProduction;
 import com.menkoagro.api.shared.response.ApiResponse;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +45,7 @@ import java.util.UUID;
 public class ProductionController {
 
     private final ProductionService productionService;
+    private final EtapeProductionService etapeProductionService;
 
     @GetMapping
     @PreAuthorize("hasAuthority('PRODUCTION_VOIR')")
@@ -149,6 +152,20 @@ public class ProductionController {
 
     // ─── Étapes ──────────────────────────────────────────────────────────────────
 
+    @GetMapping("/{id}/etapes")
+    @PreAuthorize("hasAuthority('PRODUCTION_VOIR')")
+    @Operation(summary = "Lister les étapes d'une production agricole")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Liste des étapes"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Production non agricole"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Non authentifié"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Autorisation PRODUCTION_VOIR requise"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Production introuvable")
+    })
+    public ResponseEntity<ApiResponse<List<EtapeProductionDto>>> getEtapes(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.ok(etapeProductionService.getEtapes(id)));
+    }
+
     @PostMapping("/{id}/etapes")
     @PreAuthorize("hasAuthority('PRODUCTION_CREER')")
     @Operation(summary = "Ajouter une étape (AGRICOLE uniquement)",
@@ -164,8 +181,26 @@ public class ProductionController {
     public ResponseEntity<ApiResponse<EtapeProductionDto>> addEtape(
             @PathVariable UUID id,
             @Valid @RequestBody EtapeProductionRequest request) {
-        EtapeProductionDto dto = productionService.addEtape(id, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Étape ajoutée", dto));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("Étape ajoutée", etapeProductionService.addEtape(id, request)));
+    }
+
+    @PutMapping("/{id}/etapes/{etapeId}")
+    @PreAuthorize("hasAuthority('PRODUCTION_CREER')")
+    @Operation(summary = "Modifier une étape")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Étape mise à jour"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Données invalides"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Non authentifié"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Autorisation PRODUCTION_CREER requise"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Production ou étape introuvable")
+    })
+    public ResponseEntity<ApiResponse<EtapeProductionDto>> updateEtape(
+            @PathVariable UUID id,
+            @PathVariable UUID etapeId,
+            @Valid @RequestBody EtapeProductionRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("Étape mise à jour",
+                etapeProductionService.updateEtape(id, etapeId, request)));
     }
 
     @DeleteMapping("/{id}/etapes/{etapeId}")
@@ -180,7 +215,7 @@ public class ProductionController {
     public ResponseEntity<ApiResponse<Void>> deleteEtape(
             @PathVariable UUID id,
             @PathVariable UUID etapeId) {
-        productionService.deleteEtape(id, etapeId);
+        etapeProductionService.deleteEtape(id, etapeId);
         return ResponseEntity.ok(ApiResponse.ok("Étape supprimée", null));
     }
 

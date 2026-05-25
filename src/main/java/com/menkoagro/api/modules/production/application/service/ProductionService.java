@@ -7,7 +7,6 @@ import com.menkoagro.api.modules.production.application.dto.CoutProductionDto;
 import com.menkoagro.api.modules.production.application.dto.CoutProductionRequest;
 import com.menkoagro.api.modules.production.application.dto.ElevageBandeRequest;
 import com.menkoagro.api.modules.production.application.dto.EtapeProductionDto;
-import com.menkoagro.api.modules.production.application.dto.EtapeProductionRequest;
 import com.menkoagro.api.modules.production.application.dto.ProductionAgricoleRequest;
 import com.menkoagro.api.modules.production.application.dto.ProductionDto;
 import com.menkoagro.api.modules.production.domain.entity.CoutProduction;
@@ -17,7 +16,6 @@ import com.menkoagro.api.modules.production.domain.entity.Production;
 import com.menkoagro.api.modules.production.domain.entity.ProductionAgricole;
 import com.menkoagro.api.modules.production.domain.entity.StatutProduction;
 import com.menkoagro.api.modules.production.domain.repository.CoutProductionRepository;
-import com.menkoagro.api.modules.production.domain.repository.EtapeProductionRepository;
 import com.menkoagro.api.modules.production.domain.repository.ProductionRepository;
 import com.menkoagro.api.modules.stock.application.service.StockService;
 import com.menkoagro.api.modules.stock.domain.entity.MotifMouvement;
@@ -39,7 +37,6 @@ import java.util.stream.Collectors;
 public class ProductionService {
 
     private final ProductionRepository productionRepository;
-    private final EtapeProductionRepository etapeProductionRepository;
     private final CoutProductionRepository coutProductionRepository;
     private final ProduitRepository produitRepository;
     private final StockService stockService;
@@ -148,43 +145,6 @@ public class ProductionService {
         production.setDateFin(LocalDate.now());
 
         return toDto(productionRepository.save(production));
-    }
-
-    // ─── Étapes (AGRICOLE uniquement) ────────────────────────────────────────────
-
-    @Transactional
-    public EtapeProductionDto addEtape(UUID productionId, EtapeProductionRequest request) {
-        Production production = findProductionById(productionId);
-
-        if (!(production instanceof ProductionAgricole agricole)) {
-            throw new BusinessException("Les étapes ne s'appliquent qu'aux productions agricoles");
-        }
-        if (!production.estEnCours()) {
-            throw new BusinessException("Impossible d'ajouter une étape : production non en cours");
-        }
-
-        EtapeProduction etape = EtapeProduction.builder()
-                .production(agricole)
-                .type(request.getType())
-                .dateRealisation(request.getDateRealisation())
-                .notes(request.getNotes())
-                .build();
-
-        // Sauvegarde directe pour récupérer l'UUID généré
-        EtapeProduction saved = etapeProductionRepository.save(etape);
-        return toEtapeDto(saved);
-    }
-
-    @Transactional
-    public void deleteEtape(UUID productionId, UUID etapeId) {
-        Production production = findProductionById(productionId);
-        if (!(production instanceof ProductionAgricole)) {
-            throw new BusinessException("Les étapes ne s'appliquent qu'aux productions agricoles");
-        }
-        if (!etapeProductionRepository.findById(etapeId).isPresent()) {
-            throw new ResourceNotFoundException("Étape", etapeId);
-        }
-        etapeProductionRepository.deleteById(etapeId);
     }
 
     // ─── Coûts ───────────────────────────────────────────────────────────────────
