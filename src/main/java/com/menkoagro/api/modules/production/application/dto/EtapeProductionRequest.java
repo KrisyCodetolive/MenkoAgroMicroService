@@ -18,8 +18,7 @@ public class EtapeProductionRequest {
             allowableValues = {"PREPARATION_SOL", "PLANTATION", "ENTRETIEN", "RECOLTE"})
     private TypeEtape type;
 
-    @NotNull(message = "La date de réalisation est obligatoire")
-    @Schema(description = "Date de réalisation", example = "2024-01-18", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Date de réalisation (null si l'étape n'est pas encore effectuée)", example = "2024-01-18")
     private LocalDate dateRealisation;
 
     @Schema(description = "Notes ou observations libres", example = "Utilisation de charrue à disques")

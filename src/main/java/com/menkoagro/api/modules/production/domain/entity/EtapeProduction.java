@@ -28,7 +28,7 @@ public class EtapeProduction {
     @Column(nullable = false, length = 20)
     private TypeEtape type;
 
-    @Column(name = "date_realisation", nullable = false)
+    @Column(name = "date_realisation")
     private LocalDate dateRealisation;
 
     @Column(columnDefinition = "TEXT")

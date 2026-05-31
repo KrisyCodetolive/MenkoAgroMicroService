@@ -14,6 +14,9 @@ import com.menkoagro.api.modules.production.domain.entity.EtapeProduction;
 import com.menkoagro.api.modules.production.domain.entity.Production;
 import com.menkoagro.api.modules.production.domain.entity.ProductionAgricole;
 import com.menkoagro.api.modules.production.domain.entity.StatutProduction;
+import com.menkoagro.api.modules.production.domain.entity.EtapeProduction;
+import com.menkoagro.api.modules.production.domain.entity.TypeEtape;
+import com.menkoagro.api.modules.production.domain.repository.EtapeProductionRepository;
 import com.menkoagro.api.modules.production.domain.repository.ProductionRepository;
 import com.menkoagro.api.modules.stock.application.service.StockService;
 import com.menkoagro.api.modules.stock.domain.entity.MotifMouvement;
@@ -35,6 +38,7 @@ import java.util.stream.Collectors;
 public class ProductionService {
 
     private final ProductionRepository productionRepository;
+    private final EtapeProductionRepository etapeProductionRepository;
     private final ProduitRepository produitRepository;
     private final StockService stockService;
 
@@ -79,7 +83,9 @@ public class ProductionService {
         production.setZone(request.getZone());
         production.setSuperficieParcelle(request.getSuperficieParcelle());
 
-        return toDto(productionRepository.save(production));
+        ProductionAgricole saved = (ProductionAgricole) productionRepository.save(production);
+        creerEtapesParDefaut(saved);
+        return toDto(saved);
     }
 
     @Transactional
@@ -145,6 +151,16 @@ public class ProductionService {
     }
 
     // ─── Helpers privés ──────────────────────────────────────────────────────────
+
+    private void creerEtapesParDefaut(ProductionAgricole production) {
+        for (TypeEtape type : TypeEtape.values()) {
+            etapeProductionRepository.save(EtapeProduction.builder()
+                    .production(production)
+                    .type(type)
+                    .dateRealisation(null)
+                    .build());
+        }
+    }
 
     private Production findProductionById(UUID id) {
         return productionRepository.findById(id)
