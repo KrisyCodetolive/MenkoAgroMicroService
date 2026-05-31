@@ -197,6 +197,8 @@ public class ProductionService {
     private CoutProductionDto toCoutDto(CoutProduction c) {
         return CoutProductionDto.builder()
                 .id(c.getId())
+                .etapeId(c.getEtape() != null ? c.getEtape().getId() : null)
+                .typeEtape(c.getEtape() != null ? c.getEtape().getType() : null)
                 .categorie(c.getCategorie())
                 .libelle(c.getLibelle())
                 .montant(c.getMontant())

@@ -5,8 +5,11 @@ import com.menkoagro.api.modules.production.application.dto.CoutProductionDto;
 import com.menkoagro.api.modules.production.application.dto.CoutProductionRequest;
 import com.menkoagro.api.modules.production.domain.entity.CategorieCout;
 import com.menkoagro.api.modules.production.domain.entity.CoutProduction;
+import com.menkoagro.api.modules.production.domain.entity.EtapeProduction;
 import com.menkoagro.api.modules.production.domain.entity.Production;
+import com.menkoagro.api.modules.production.domain.entity.ProductionAgricole;
 import com.menkoagro.api.modules.production.domain.repository.CoutProductionRepository;
+import com.menkoagro.api.modules.production.domain.repository.EtapeProductionRepository;
 import com.menkoagro.api.modules.production.domain.repository.ProductionRepository;
 import com.menkoagro.api.shared.exception.BusinessException;
 import com.menkoagro.api.shared.exception.ResourceNotFoundException;
@@ -25,6 +28,7 @@ public class CoutProductionService {
 
     private final CoutProductionRepository coutProductionRepository;
     private final ProductionRepository productionRepository;
+    private final EtapeProductionRepository etapeProductionRepository;
 
     public List<CategorieCoutDto> getCategoriesCout() {
         return Arrays.stream(CategorieCout.values())
@@ -47,8 +51,21 @@ public class CoutProductionService {
     public CoutProductionDto addCout(UUID productionId, CoutProductionRequest request) {
         Production production = findProductionById(productionId);
 
+        EtapeProduction etape = null;
+        if (request.getEtapeId() != null) {
+            if (!(production instanceof ProductionAgricole)) {
+                throw new BusinessException("Les coûts par étape ne s'appliquent qu'aux productions agricoles");
+            }
+            etape = etapeProductionRepository.findById(request.getEtapeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Étape", request.getEtapeId()));
+            if (!etape.getProduction().getId().equals(productionId)) {
+                throw new BusinessException("Cette étape n'appartient pas à cette production");
+            }
+        }
+
         CoutProduction cout = CoutProduction.builder()
                 .production(production)
+                .etape(etape)
                 .categorie(request.getCategorie())
                 .libelle(request.getLibelle())
                 .montant(request.getMontant())
@@ -79,6 +96,8 @@ public class CoutProductionService {
     private CoutProductionDto toDto(CoutProduction c) {
         return CoutProductionDto.builder()
                 .id(c.getId())
+                .etapeId(c.getEtape() != null ? c.getEtape().getId() : null)
+                .typeEtape(c.getEtape() != null ? c.getEtape().getType() : null)
                 .categorie(c.getCategorie())
                 .libelle(c.getLibelle())
                 .montant(c.getMontant())

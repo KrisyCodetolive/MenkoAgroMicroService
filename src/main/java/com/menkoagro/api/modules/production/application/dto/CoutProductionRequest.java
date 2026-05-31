@@ -11,11 +11,15 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Getter
 @Setter
 @Schema(description = "Données pour enregistrer un coût de production")
 public class CoutProductionRequest {
+
+    @Schema(description = "(AGRICOLE) Étape à laquelle ce coût est rattaché (optionnel)", example = "uuid-de-l-etape")
+    private UUID etapeId;
 
     @NotNull(message = "La catégorie de coût est obligatoire")
     @Schema(description = "Catégorie du coût", example = "ALIMENTATION", requiredMode = Schema.RequiredMode.REQUIRED,

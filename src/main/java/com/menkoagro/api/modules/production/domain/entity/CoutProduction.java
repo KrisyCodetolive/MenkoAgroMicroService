@@ -25,6 +25,10 @@ public class CoutProduction {
     @JsonIgnore
     private Production production;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "etape_id", nullable = true)
+    private EtapeProduction etape;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private CategorieCout categorie;
