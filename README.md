@@ -4,6 +4,118 @@ API REST de gestion des activités de Menko Agro (productions agricoles, élevag
 
 ---
 
+## 🚀 Démarrage rapide avec Docker (Mac / Windows / Linux)
+
+### Prérequis
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installé et **lancé**
+- [Supabase CLI](https://supabase.com/docs/guides/cli/getting-started) installé
+- [Git](https://git-scm.com/) installé
+
+---
+
+### Étape 1 — Cloner le projet et démarrer Supabase
+
+```bash
+git clone <url-du-repo>
+cd menko-agro-api
+supabase start
+```
+
+Attendre que Supabase soit prêt (~2 min au premier démarrage).
+Tu verras `DB URL: postgresql://postgres:postgres@127.0.0.1:54332/postgres`.
+
+---
+
+### Étape 2 — Lancer l'API
+
+#### Mac et Windows
+
+```bash
+docker run -d \
+  --name menko-agro-api \
+  -p 8081:8081 \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  -e SERVER_PORT=8081 \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:54332/postgres \
+  -e SPRING_DATASOURCE_USERNAME=postgres \
+  -e SPRING_DATASOURCE_PASSWORD=postgres \
+  -e JWT_SECRET=menko-agro-secret-key-change-in-production-must-be-at-least-256bits!! \
+  -e SPRINGDOC_SWAGGER_UI_ENABLED=true \
+  -e SPRINGDOC_API_DOCS_ENABLED=true \
+  krisdev005/menko-agro-api:latest
+```
+
+#### Linux
+
+```bash
+docker run -d \
+  --name menko-agro-api \
+  --network=host \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  -e SERVER_PORT=8081 \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:54332/postgres \
+  -e SPRING_DATASOURCE_USERNAME=postgres \
+  -e SPRING_DATASOURCE_PASSWORD=postgres \
+  -e JWT_SECRET=menko-agro-secret-key-change-in-production-must-be-at-least-256bits!! \
+  -e SPRINGDOC_SWAGGER_UI_ENABLED=true \
+  -e SPRINGDOC_API_DOCS_ENABLED=true \
+  krisdev005/menko-agro-api:latest
+```
+
+---
+
+### Étape 3 — Accéder à l'API
+
+Attendre ~20 secondes puis ouvrir :
+
+| Ressource | URL |
+|---|---|
+| **Swagger** | http://localhost:8081/api/v1/swagger-ui/index.html |
+| **Base URL** | http://localhost:8081/api/v1 |
+
+---
+
+### Étape 4 — Se connecter
+
+Dans Swagger → `POST /auth/login` :
+
+```json
+{
+  "email": "admin@menkoagro.ci",
+  "motDePasse": "admin123"
+}
+```
+
+Copier le `token` → cliquer **Authorize** → coller `Bearer <token>`.
+
+---
+
+### Commandes utiles
+
+```bash
+docker logs -f menko-agro-api   # voir les logs
+docker stop menko-agro-api      # arrêter
+docker start menko-agro-api     # redémarrer
+docker rm -f menko-agro-api     # supprimer
+supabase stop                   # arrêter la base de données
+```
+
+---
+
+### Problèmes fréquents
+
+| Problème | Solution |
+|---|---|
+| L'API ne répond pas au démarrage | Supabase pas encore prêt → attendre et relancer `docker restart menko-agro-api` |
+| Erreur `host.docker.internal` | Mettre à jour Docker Desktop |
+| Erreur 403 sur Swagger | Token expiré → se reconnecter via `POST /auth/login` |
+| Port 8081 déjà utilisé | Remplacer `-p 8081:8081` par `-p 8082:8081` et accéder sur le port 8082 |
+
+---
+
+---
+
 ## Livrables attendus
 
 Tout contributeur sur ce projet doit respecter les deux livrables suivants.
