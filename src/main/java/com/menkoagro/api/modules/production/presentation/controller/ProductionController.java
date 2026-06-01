@@ -262,6 +262,38 @@ public class ProductionController {
         return ResponseEntity.ok(ApiResponse.ok(coutProductionService.getCouts(id)));
     }
 
+    @GetMapping("/{id}/etapes/{etapeId}/couts")
+    @PreAuthorize("hasAuthority('PRODUCTION_VOIR')")
+    @Operation(summary = "Lister les coûts d'une étape")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Coûts de l'étape"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Production ou étape introuvable")
+    })
+    public ResponseEntity<ApiResponse<List<CoutProductionDto>>> getCoutsParEtape(
+            @PathVariable UUID id,
+            @PathVariable UUID etapeId) {
+        return ResponseEntity.ok(ApiResponse.ok(coutProductionService.getCoutsParEtape(id, etapeId)));
+    }
+
+    @PostMapping("/{id}/etapes/{etapeId}/couts")
+    @PreAuthorize("hasAuthority('COUT_ENREGISTRER')")
+    @Operation(summary = "Ajouter un coût à une étape (AGRICOLE uniquement)",
+            description = "Enregistre un coût directement rattaché à une étape de production agricole")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Coût enregistré",
+                    content = @Content(schema = @Schema(implementation = CoutProductionDto.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Production non agricole ou données invalides"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Autorisation COUT_ENREGISTRER requise"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Production ou étape introuvable")
+    })
+    public ResponseEntity<ApiResponse<CoutProductionDto>> addCoutParEtape(
+            @PathVariable UUID id,
+            @PathVariable UUID etapeId,
+            @Valid @RequestBody CoutProductionRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("Coût enregistré", coutProductionService.addCoutParEtape(id, etapeId, request)));
+    }
+
     @PostMapping("/{id}/couts")
     @PreAuthorize("hasAuthority('COUT_ENREGISTRER')")
     @Operation(summary = "Enregistrer un coût de production")

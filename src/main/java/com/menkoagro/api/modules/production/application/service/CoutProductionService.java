@@ -76,6 +76,40 @@ public class CoutProductionService {
     }
 
     @Transactional
+    public CoutProductionDto addCoutParEtape(UUID productionId, UUID etapeId, CoutProductionRequest request) {
+        Production production = findProductionById(productionId);
+        if (!(production instanceof ProductionAgricole)) {
+            throw new BusinessException("Les coûts par étape ne s'appliquent qu'aux productions agricoles");
+        }
+        EtapeProduction etape = etapeProductionRepository.findById(etapeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Étape", etapeId));
+        if (!etape.getProduction().getId().equals(productionId)) {
+            throw new BusinessException("Cette étape n'appartient pas à cette production");
+        }
+
+        CoutProduction cout = CoutProduction.builder()
+                .production(production)
+                .etape(etape)
+                .categorie(request.getCategorie())
+                .libelle(request.getLibelle())
+                .montant(request.getMontant())
+                .date(request.getDate())
+                .build();
+
+        return toDto(coutProductionRepository.save(cout));
+    }
+
+    @Transactional(readOnly = true)
+    public List<CoutProductionDto> getCoutsParEtape(UUID productionId, UUID etapeId) {
+        findProductionById(productionId);
+        etapeProductionRepository.findById(etapeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Étape", etapeId));
+        return coutProductionRepository.findByEtapeId(etapeId).stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
     public void deleteCout(UUID productionId, UUID coutId) {
         findProductionById(productionId);
         CoutProduction cout = coutProductionRepository.findById(coutId)

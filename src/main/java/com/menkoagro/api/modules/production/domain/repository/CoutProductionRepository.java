@@ -10,6 +10,8 @@ public interface CoutProductionRepository {
 
     List<CoutProduction> findByProductionId(UUID productionId);
 
+    List<CoutProduction> findByEtapeId(UUID etapeId);
+
     Optional<CoutProduction> findById(UUID id);
 
     CoutProduction save(CoutProduction cout);
